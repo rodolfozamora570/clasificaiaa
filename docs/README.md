@@ -23,7 +23,7 @@ Los datos no son de nuestra región, fueron recolectados en Reino Unido por la U
 
 ### 3. Algoritmo
 
-Utilizaremos un método llamado **Naive Bayes Multinomial con TF-IDF**, que ayudará al programa a aprender de los datos y después identificar si un mensaje es spam o no. Lo elegimos porque es un algoritmo de clasificación, lo que significa que sirve para separar los mensajes en dos grupos.
+Utilizaremos un método llamado **Naive Bayes**, que ayudará al programa a aprender de los datos y después identificar si un mensaje es spam o no. Lo elegimos porque es un algoritmo de clasificación, lo que significa que sirve para separar los mensajes en dos grupos.
 
 Funciona calculando la probabilidad de cada palabra. Por ejemplo, aprende que palabras como `FREE, WIN, PRIZE, CALL NOW` aparecen casi siempre en mensajes spam, y palabras como `hola, tarea, llego` aparecen en mensajes normales. Además, no necesita una computadora muy potente para funcionar.
 
