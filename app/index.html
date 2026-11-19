@@ -1,0 +1,74 @@
+
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ClasificaIA</title>
+</head>
+<body>
+
+    <h1>ClasificaIA</h1>
+
+    <p>Escribe las medidas de una flor (cm) y el modelo dirá su especie.</p>
+
+    <form id="formulario">
+
+        <label for="largo_sepalo">Largo del sépalo</label>
+        <input type="number" id="largo_sepalo" name="largo_sepalo" step="any" required>
+
+        <label for="ancho_sepalo">Ancho del sépalo</label>
+        <input type="number" id="ancho_sepalo" name="ancho_sepalo" step="any" required>
+
+        <label for="largo_petalo">Largo del pétalo</label>
+        <input type="number" id="largo_petalo" name="largo_petalo" step="any" required>
+
+        <label for="ancho_petalo">Ancho del pétalo</label>
+        <input type="number" id="ancho_petalo" name="ancho_petalo" step="any" required>
+
+        <label for="llave">Llave de acceso (opcional)</label>
+        <input type="text" id="llave" name="llave">
+
+        <button type="submit">Clasificar</button>
+
+    </form>
+
+    <p id="resultado"></p>
+
+    <script>
+        // Al enviar el formulario: arma un objeto JSON con los campos y llama a la API
+        document.getElementById("formulario").addEventListener("submit", async (evento) => {
+            evento.preventDefault(); // no recargar la página
+
+            const campos = new FormData(evento.target);
+            const datos = {};
+
+            for (const [nombre, valor] of campos) {
+                if (nombre !== "llave") {
+                    datos[nombre] = parseFloat(valor);
+                }
+            }
+
+            const cabeceras = { "Content-Type": "application/json" };
+            const llave = document.getElementById("llave").value;
+
+            if (llave) {
+                cabeceras["x-api-key"] = llave; // solo si el usuario la escribió
+            }
+
+            const resp = await fetch("/predict", {
+                method: "POST",
+                headers: cabeceras,
+                body: JSON.stringify(datos),
+            });
+
+            const json = await resp.json();
+
+            document.getElementById("resultado").textContent = resp.ok
+                ? `${json.clase} (confianza ${json.confianza})`
+                : "Datos inválidos: revisa los valores";
+        });
+    </script>
+
+</body>
+</html>
