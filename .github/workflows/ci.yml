@@ -1,3 +1,4 @@
+
 # Integración continua: en cada push a main se entrena, se prueba, se escanea la
 # imagen y, solo si todo pasa, se publica en GitHub Container Registry (GHCR).
 
@@ -16,9 +17,9 @@ jobs:
       packages: write # permiso para publicar la imagen en GHCR
 
     steps:
-      - uses: actions/checkout@v6
+      - uses: actions/checkout@v4
 
-      - uses: actions/setup-python@v6
+      - uses: actions/setup-python@v5
         with:
           python-version: "3.12"
 
