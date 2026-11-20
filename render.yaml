@@ -4,7 +4,7 @@
 
 services:
   - type: web # servicio web que recibe peticiones HTTP
-    name: clasificaia-equipoN # cámbienlo: forma parte de la URL pública
+    name: clasificaia-equipo4 # cámbienlo: forma parte de la URL pública
     runtime: docker # se construye con el Dockerfile del repositorio
     plan: free
     dockerfilePath: ./Dockerfile
