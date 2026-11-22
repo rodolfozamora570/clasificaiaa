@@ -1,82 +1,74 @@
 
-"""
-Pruebas automáticas de la API (se ejecutan con: pytest -q).
-TestClient simula peticiones HTTP sin levantar un servidor. GitHub Actions las
-ejecuta en cada push: si una falla, la imagen no se publica.
-"""
+import os
 
+# Desactivar la llave para las pruebas normales
+os.environ["API_KEY"] = ""
+
+import app.main as main_module
 from fastapi.testclient import TestClient
-from app.main import app
 
-
-cliente = TestClient(app)
+cliente = TestClient(main_module.app)
 
 
 def test_health():
-    """El servicio responde y reporta la versión del modelo."""
+    r = cliente.get("/health")
 
-    assert cliente.get("/health").json()["status"] == "ok"
+    assert r.status_code == 200
+    datos = r.json()
 
-
-def test_predict_setosa():
-    """Una flor típica de la especie setosa se clasifica bien."""
-
-    r = cliente.post(
-        "/predict",
-        json={
-            "largo_sepalo": 5.1,
-            "ancho_sepalo": 3.5,
-            "largo_petalo": 1.4,
-            "ancho_petalo": 0.2
-        }
-    )
-
-    assert r.status_code == 200 and r.json()["clase"] == "setosa"
+    assert datos["status"] == "ok"
+    assert datos["algoritmo"] == "Multinomial Naive Bayes"
+    assert datos["exactitud"] > 0.90
 
 
-def test_predict_invalido():
-    """Un valor negativo se rechaza con 422 (validación de Pydantic)."""
+def test_predict_spam():
+    mensaje = {
+        "mensaje": "Congratulations! You have won a free prize. Call now!"
+    }
 
-    r = cliente.post(
-        "/predict",
-        json={
-            "largo_sepalo": -1,
-            "ancho_sepalo": 3.5,
-            "largo_petalo": 1.4,
-            "ancho_petalo": 0.2
-        }
-    )
+    r = cliente.post("/predict", json=mensaje)
+
+    assert r.status_code == 200
+    datos = r.json()
+
+    assert datos["clase"] == "spam"
+    assert datos["resultado"] == "Mensaje no deseado (SPAM)"
+    assert 0 <= datos["confianza"] <= 1
+
+
+def test_predict_ham():
+    mensaje = {
+        "mensaje": "Hey, are we still meeting for lunch today?"
+    }
+
+    r = cliente.post("/predict", json=mensaje)
+
+    assert r.status_code == 200
+    datos = r.json()
+
+    assert datos["clase"] == "ham"
+    assert datos["resultado"] == "Mensaje legítimo (HAM)"
+
+
+def test_mensaje_vacio():
+    r = cliente.post("/predict", json={"mensaje": ""})
 
     assert r.status_code == 422
 
 
-def test_calidad_minima():
-    """Prueba de calidad: si el modelo baja de 0.85 de exactitud, el CI falla.
-    >>> En su proyecto: ajusten la métrica y el umbral a su problema.
-    """
-
-    assert cliente.get("/health").json()["exactitud"] >= 0.85
-
-
 def test_llave_requerida(monkeypatch):
-    """Hito 4: con API_KEY definida, sin cabecera da 401 y con la correcta da 200."""
+    monkeypatch.setattr(main_module, "API_KEY", "secreto-de-prueba")
 
-    import app.main as m
-
-    monkeypatch.setattr(m, "API_KEY", "secreto-de-prueba")
-
-    flor = {
-        "largo_sepalo": 5.1,
-        "ancho_sepalo": 3.5,
-        "largo_petalo": 1.4,
-        "ancho_petalo": 0.2
+    mensaje = {
+        "mensaje": "Congratulations! You won a free prize!"
     }
 
-    assert cliente.post("/predict", json=flor).status_code == 401
+    r = cliente.post("/predict", json=mensaje)
+    assert r.status_code == 401
 
     r = cliente.post(
         "/predict",
-        json=flor,
+        json=mensaje,
         headers={"x-api-key": "secreto-de-prueba"}
     )
 

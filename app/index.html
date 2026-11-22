@@ -1,110 +1,198 @@
-<!doctype html>
+
+<!DOCTYPE html>
 <html lang="es">
 <head>
-  <meta charset="utf-8">
-  <meta name="viewport" content="width=device-width,initial-scale=1">
-  <title>ClasificaIA · Panel</title>
-  <link rel="stylesheet" href="/static/estilos.css">
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ClasificaIA Equipo 4 · Detector SMS</title>
+    <link rel="stylesheet" href="/static/estilos.css">
 </head>
 <body>
-  <header class="barra">
+
+<header class="barra">
     <div class="marca">
-      <span class="logo" aria-hidden="true">✿</span>
-      <div>
-        <h1>ClasificaIA Equipo 4</h1>
-        <p class="sub">Clasificación de flores Iris</p>
-      </div>
+        <span class="logo" aria-hidden="true">✿</span>
+        <div>
+            <h1>ClasificaIA Equipo 4</h1>
+            <p class="sub">Detector inteligente de mensajes SMS</p>
+        </div>
     </div>
-    <div class="estado" id="estado" title="Estado del servicio (/health)">
-      <span class="punto"></span><span id="estado-texto">Conectando…</span>
-    </div>
-  </header>
 
-  <main class="panel">
-    <!-- ===================== Indicadores ===================== -->
-    <section class="kpis" aria-label="Indicadores del modelo">
-      <article class="kpi"><span class="kpi-et">Exactitud (prueba)</span><strong id="kpi-exactitud">—</strong></article>
-      <article class="kpi"><span class="kpi-et">Validación cruzada</span><strong id="kpi-cv">—</strong></article>
-      <article class="kpi"><span class="kpi-et">Datos entren. / prueba</span><strong id="kpi-datos">—</strong></article>
-      <article class="kpi"><span class="kpi-et">Versión del modelo</span><strong id="kpi-version">—</strong></article>
+    <div class="estado" id="estado">
+        <span class="punto"></span>
+        <span id="estado-texto">Conectando...</span>
+    </div>
+</header>
+
+<main class="panel">
+
+    <section class="kpis">
+        <article class="kpi">
+            <span class="kpi-et">Exactitud del modelo</span>
+            <strong id="kpi-exactitud">—</strong>
+        </article>
+
+        <article class="kpi">
+            <span class="kpi-et">Algoritmo</span>
+            <strong style="font-size:1.1rem" id="kpi-algoritmo">—</strong>
+        </article>
+
+        <article class="kpi">
+            <span class="kpi-et">Versión</span>
+            <strong id="kpi-version">—</strong>
+        </article>
+
+        <article class="kpi">
+            <span class="kpi-et">Tipo de entrada</span>
+            <strong style="font-size:1.1rem">Texto SMS</strong>
+        </article>
     </section>
 
-    <!-- ===================== Clasificar ===================== -->
     <section class="tarjeta">
-      <div class="tarjeta-cab">
-        <h2>Clasificar una flor</h2>
-        <div class="ejemplos" role="group" aria-label="Cargar un ejemplo">
-          <button type="button" class="chip" data-ej="setosa">Setosa</button>
-          <button type="button" class="chip" data-ej="versicolor">Versicolor</button>
-          <button type="button" class="chip" data-ej="virginica">Virginica</button>
-        </div>
-      </div>
-      <form id="form">
-        <div class="campos">
-          <label>Largo del sépalo (cm)
-            <input name="largo_sepalo" type="number" step="0.1" min="0.1" max="9.9" value="5.1" required>
-            <small class="rango" data-rango="largo_sepalo"></small>
-          </label>
-          <label>Ancho del sépalo (cm)
-            <input name="ancho_sepalo" type="number" step="0.1" min="0.1" max="9.9" value="3.5" required>
-            <small class="rango" data-rango="ancho_sepalo"></small>
-          </label>
-          <label>Largo del pétalo (cm)
-            <input name="largo_petalo" type="number" step="0.1" min="0.1" max="9.9" value="1.4" required>
-            <small class="rango" data-rango="largo_petalo"></small>
-          </label>
-          <label>Ancho del pétalo (cm)
-            <input name="ancho_petalo" type="number" step="0.1" min="0.1" max="9.9" value="0.2" required>
-            <small class="rango" data-rango="ancho_petalo"></small>
-          </label>
-        </div>
-        <button class="primario" type="submit" id="btn-clasificar">Clasificar</button>
-      </form>
+        <h2>Clasificar mensaje</h2>
+        <p class="nota">
+            Escribe un mensaje para identificar si es SPAM o legítimo.
+        </p>
+
+        <form id="formulario">
+            <label for="mensaje">Mensaje SMS</label>
+            <textarea
+                id="mensaje"
+                name="mensaje"
+                maxlength="500"
+                rows="6"
+                placeholder="Escribe aquí el mensaje que deseas analizar..."
+                required
+                style="width:100%;padding:.75rem;border:1px solid var(--borde);border-radius:10px;background:var(--fondo);color:var(--texto);font:inherit;resize:vertical;"
+            ></textarea>
+
+            <label for="llave" style="margin-top:1rem">Llave de acceso (opcional)</label>
+            <input
+                type="password"
+                id="llave"
+                name="llave"
+                placeholder="Introduce tu API Key si es necesaria"
+            >
+
+            <button class="primario" type="submit" id="btn-clasificar">
+                Clasificar mensaje
+            </button>
+        </form>
     </section>
 
-    <!-- ===================== Resultado ===================== -->
     <section class="tarjeta" aria-live="polite">
-      <h2>Resultado</h2>
-      <div id="resultado" class="vacio">Llena los datos y pulsa <b>Clasificar</b>, o elige un ejemplo.</div>
-      <div id="probabilidades" class="barras"></div>
+        <h2>Resultado de la clasificación</h2>
+        <div id="resultado" class="vacio">
+            Escribe un mensaje y pulsa Clasificar.
+        </div>
+        <div id="detalles" class="nota"></div>
     </section>
 
-    <!-- ===================== Métricas por clase ===================== -->
-    <section class="tarjeta">
-      <h2>Métricas por clase</h2>
-      <p class="nota" id="algoritmo"></p>
-      <div class="tabla-envoltura">
-        <table id="tabla-metricas">
-          <thead><tr><th>Clase</th><th>Precisión</th><th>Recall</th><th>F1</th><th>Soporte</th></tr></thead>
-          <tbody></tbody>
-        </table>
-      </div>
-    </section>
+</main>
 
-    <!-- ===================== Matriz de confusión ===================== -->
-    <section class="tarjeta">
-      <h2>Matriz de confusión</h2>
-      <p class="nota">Filas: clase real · Columnas: clase predicha (conjunto de prueba)</p>
-      <div id="matriz" class="matriz"></div>
-    </section>
+<footer class="pie">
+    ClasificaIA Equipo 4 · Cómputo en la Nube ·
+    API: <a href="/docs">/docs</a> ·
+    <a href="/health">/health</a>
+</footer>
 
-    <!-- ===================== Historial ===================== -->
-    <section class="tarjeta ancha">
-      <div class="tarjeta-cab">
-        <h2>Historial de esta sesión</h2>
-        <button type="button" class="chip" id="btn-limpiar">Limpiar</button>
-      </div>
-      <div class="tabla-envoltura">
-        <table id="tabla-historial">
-          <thead><tr><th>Hora</th><th>Sépalo (L × A)</th><th>Pétalo (L × A)</th><th>Clase</th><th>Confianza</th><th>Tiempo</th></tr></thead>
-          <tbody><tr class="sin-datos"><td colspan="6">Aún no hay predicciones.</td></tr></tbody>
-        </table>
-      </div>
-    </section>
-  </main>
+<script>
+const formulario = document.getElementById("formulario");
+const resultado = document.getElementById("resultado");
+const detalles = document.getElementById("detalles");
+const boton = document.getElementById("btn-clasificar");
 
-  <footer class="pie">ClasificaIA · Cómputo en la Nube · API: <a href="/docs">/docs</a> · <a href="/metrics">/metrics</a> · <a href="/health">/health</a></footer>
+async function cargarEstado() {
+    const estado = document.getElementById("estado");
+    const texto = document.getElementById("estado-texto");
 
-  <script src="/static/app.js"></script>
+    try {
+        const respuesta = await fetch("/health");
+        if (!respuesta.ok) throw new Error("Servicio no disponible");
+
+        const datos = await respuesta.json();
+
+        estado.className = "estado ok";
+        texto.textContent = "Servicio conectado";
+
+        document.getElementById("kpi-exactitud").textContent =
+            (datos.exactitud * 100).toFixed(1) + "%";
+
+        document.getElementById("kpi-algoritmo").textContent =
+            datos.algoritmo;
+
+        document.getElementById("kpi-version").textContent =
+            datos.version;
+
+    } catch (error) {
+        estado.className = "estado caido";
+        texto.textContent = "Servicio desconectado";
+    }
+}
+
+formulario.addEventListener("submit", async (evento) => {
+    evento.preventDefault();
+
+    const mensaje = document.getElementById("mensaje").value.trim();
+    const llave = document.getElementById("llave").value.trim();
+
+    if (!mensaje) return;
+
+    boton.disabled = true;
+    boton.textContent = "Analizando...";
+    resultado.className = "vacio";
+    resultado.textContent = "Analizando mensaje...";
+    detalles.textContent = "";
+
+    const cabeceras = {
+        "Content-Type": "application/json"
+    };
+
+    if (llave) {
+        cabeceras["x-api-key"] = llave;
+    }
+
+    try {
+        const respuesta = await fetch("/predict", {
+            method: "POST",
+            headers: cabeceras,
+            body: JSON.stringify({ mensaje })
+        });
+
+        const datos = await respuesta.json();
+
+        if (!respuesta.ok) {
+            resultado.className = "error";
+            resultado.textContent =
+                datos.detail || "No se pudo clasificar el mensaje.";
+            return;
+        }
+
+        const esSpam = datos.clase === "spam";
+
+        resultado.className = "prediccion";
+        resultado.innerHTML = `
+            <span class="clase" style="color:${esSpam ? 'var(--error)' : 'var(--ok)'}">
+                ${esSpam ? 'SPAM' : 'HAM'}
+            </span>
+            <span class="conf">${datos.resultado}</span>
+        `;
+
+        detalles.textContent =
+            `Confianza: ${(datos.confianza * 100).toFixed(1)}% · ` +
+            `Exactitud del modelo: ${(datos.exactitud_modelo * 100).toFixed(1)}%`;
+
+    } catch (error) {
+        resultado.className = "error";
+        resultado.textContent = "No se pudo conectar con la API.";
+    } finally {
+        boton.disabled = false;
+        boton.textContent = "Clasificar mensaje";
+    }
+});
+
+cargarEstado();
+</script>
+
 </body>
 </html>
