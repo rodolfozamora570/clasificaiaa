@@ -1,5 +1,4 @@
-# Integración continua: en cada push a main se entrena, se prueba, se escanea la
-# imagen y, solo si todo pasa, se publica en GitHub Container Registry (GHCR).
+# Integración continua: entrenar, probar, escanear y publicar la imagen en GHCR.
 
 name: ci
 
@@ -13,7 +12,7 @@ jobs:
 
     permissions:
       contents: read
-      packages: write # permiso para publicar la imagen en GHCR
+      packages: write
 
     steps:
       - uses: actions/checkout@v6
@@ -26,11 +25,11 @@ jobs:
 
       - run: python modelo/entrenar.py
 
-      - run: pytest -q # si una prueba falla, el flujo se detiene aquí
+      - run: pytest -q
 
       - run: docker build -t clasificaia:ci .
 
-      # Hito 4: falla si la imagen tiene vulnerabilidades críticas
+      # Escaneo de vulnerabilidades críticas
       - uses: aquasecurity/trivy-action@v0.36.0
         with:
           image-ref: clasificaia:ci
@@ -38,13 +37,17 @@ jobs:
           exit-code: "1"
           ignore-unfixed: true
 
+      # Inicio de sesión en GitHub Container Registry
       - uses: docker/login-action@v3
         with:
           registry: ghcr.io
           username: ${{ github.actor }}
           password: ${{ secrets.GITHUB_TOKEN }}
 
+      # Publicación de las etiquetas latest y hito2
       - uses: docker/build-push-action@v6
         with:
           push: true
-          tags: ghcr.io/${{ github.repository }}:latest
+          tags: |
+            ghcr.io/${{ github.repository }}:latest
+            ghcr.io/${{ github.repository }}:hito2
