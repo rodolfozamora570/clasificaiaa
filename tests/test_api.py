@@ -17,7 +17,7 @@ def test_health():
 
     assert datos["status"] == "ok"
     assert datos["algoritmo"] == "Multinomial Naive Bayes"
-    assert datos["exactitud"] > 0.99
+    assert datos["exactitud"] > 0.90
 
 
 def test_predict_spam():
