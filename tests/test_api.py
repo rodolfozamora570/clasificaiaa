@@ -1,4 +1,3 @@
-
 import os
 
 # Desactivar la llave para las pruebas normales
@@ -18,7 +17,7 @@ def test_health():
 
     assert datos["status"] == "ok"
     assert datos["algoritmo"] == "Multinomial Naive Bayes"
-    assert datos["exactitud"] > 0.90
+    assert datos["exactitud"] > 0.99
 
 
 def test_predict_spam():
